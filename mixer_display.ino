@@ -313,12 +313,21 @@ void softStartMotor(int targetDuty) {
 void presetAlmondMilk() {
   stopRequested = false;  // Reset the flag before starting
 
+  updateDisp("CONTINUOUS", "ALMOND MLK");
+
+  startMotor(255, 25000);
+
+    // Stop the motor after max run time
+  stopMotor();
+
+  if (stopRequested) return;
+
   // Step 1: Pulsing
-  for (int i = 0; i <= 15; i++) {
+  for (int i = 0; i <= 5; i++) {
     if (stopRequested) break;  // Break if stop is requested
     String loop = "PULSE " + String(i);
     updateDisp(loop, "ALMOND MLK");
-    startMotor(255, 2500);
+    startMotor(255, 3000);
     stopMotor();
     delay(1000);
   }
@@ -326,7 +335,7 @@ void presetAlmondMilk() {
   if (stopRequested) return;  // Exit the function if stop requested
 
   // Step 2: Add Water
-  for (int i = 0; i <= 10; i++) {
+  for (int i = 0; i <= 30; i++) {
     if (stopRequested) break;
     String loop = "WATER " + String(i);
     updateDisp("ALMOND MLK", loop);
@@ -373,7 +382,7 @@ void presetSmoothie() {
   if (stopRequested) return;
 
   // Step 2: Add Water
-  for (int i = 0; i <= 10; i++) {
+  for (int i = 0; i <= 30; i++) {
     if (stopRequested) break;
     String loop = "WATER " + String(i);
     updateDisp("SMOOTHIE", loop);
@@ -469,6 +478,7 @@ void handlePulseMode(int pulseIndex) {
   int pulseOnTime = 0;  // Pulse duration in milliseconds
   int pulseOffTime = 500;  // Time between pulses (in ms)
   int totalPulses = 5;  // Number of pulses to perform
+  stopRequested = false;  // Reset the flag before starting
 
   // Set the pulse duration based on the selected index
   switch (pulseIndex) {
@@ -487,6 +497,8 @@ void handlePulseMode(int pulseIndex) {
       return;  // Exit the function
   }
 
+  if (stopRequested) return;
+
   // Perform the pulses
   for (int i = 0; i < totalPulses; i++) {
     // if (buttonPressExitCheck()) return;  // Exit if button is pressed
@@ -494,6 +506,8 @@ void handlePulseMode(int pulseIndex) {
     // Display pulse information
     String loop = "PULSE " + String(i + 1);
     updateDisp(loop, String(pulseOnTime / 1000) + " SECS");
+
+    if (stopRequested) return;
 
     // Start the motor and wait for the pulse duration
     startMotor(255, pulseOnTime);
@@ -504,6 +518,8 @@ void handlePulseMode(int pulseIndex) {
       updateDisp("500MS", "REST");
       delay(pulseOffTime);  // Wait between pulses
     }
+
+    if (stopRequested) return;
   }
 
   // Display completion message
@@ -512,6 +528,7 @@ void handlePulseMode(int pulseIndex) {
 }
 
 void handleContinuousMode() {
+  stopRequested = false;  // Reset the flag before starting
   int maxRunTime = 30000;  // Maximum time to run the motor (30 seconds)
   int elapsedTime = 0;  // Track the elapsed time in milliseconds
   int checkInterval = 1000;  // Check every second (1000 ms)
@@ -519,7 +536,7 @@ void handleContinuousMode() {
 
   updateDisp("CONTINUOUS", "RUNNING");
 
-  startMotor(255, 20000);
+  startMotor(255, 25000);
 
   // Stop the motor after max run time
   stopMotor();
